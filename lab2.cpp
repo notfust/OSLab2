@@ -1,6 +1,6 @@
 #include <iostream>
 #include <windows.h>
-//#pragma comment(lib, "user32.lib")
+#include <vector>
 
 using namespace std;
 
@@ -11,10 +11,10 @@ int main() {
 	int menu_item = 0;
 
 	SYSTEM_INFO siSysInfo;
-	GetSystemInfo(&siSysInfo);
+	GetSystemInfo(&siSysInfo); //получение инфо о вычислительной системе
 
 	MEMORYSTATUS stat;
-	GlobalMemoryStatus(&stat);
+	GlobalMemoryStatus(&stat); //опрееление статуса виртуальной памяти
 
 	MEMORY_BASIC_INFORMATION  pmbi;
 	DWORD  pmbi_size = sizeof(MEMORY_BASIC_INFORMATION);
@@ -71,7 +71,11 @@ int main() {
 			cout << "Enter anddress: ";
 			cin >> Address;
 			system("cls");
-			VirtualQuery(Address, &pmbi, pmbi_size);
+			VirtualQuery(
+				Address, //адрес области
+				&pmbi, //адрес информационного буфера
+				pmbi_size //рамер буфера
+			);
 			cout << "BaseAddress: " << pmbi.BaseAddress << endl;
 			cout << "AllocationBase: " << pmbi.AllocationBase << endl;
 			cout << "AllocationProtect: " << pmbi.AllocationProtect << endl;
@@ -93,15 +97,25 @@ int main() {
 			switch (menu_item)
 			{
 			case 1: {
-				mem_ptr = VirtualAlloc(NULL, 4096, MEM_RESERVE, PAGE_READWRITE);
+				mem_ptr = VirtualAlloc(
+					NULL, //адрес (выберается системой)
+					4096, //размер выделяемого региона (байты)
+					MEM_RESERVE, //тип распределения памяти
+					PAGE_READWRITE //тип защиты доступа (чтение и запись)
+				);
 				if (mem_ptr != NULL)
-					cout << "Auto memory reserved" << endl;
+					cout << "Memory reserved automatically" << endl;
 				break;
 			}
 			case 2: {
 				cout << "Enter address:";
 				cin >> address;
-				mem_ptr = VirtualAlloc(address, 4096, MEM_RESERVE, PAGE_READWRITE);
+				mem_ptr = VirtualAlloc(
+					address, //адрес
+					4096, //размер (байты)
+					MEM_RESERVE, //тип распределения памяти 
+					PAGE_READWRITE //тип защиты доступа (чтение и запись)
+				);
 				cout << "Memory reserved" << endl;
 				break;
 			}
@@ -121,13 +135,23 @@ int main() {
 			switch (menu_item)
 			{
 			case 1: {
-				mem_ptr = VirtualAlloc(NULL, 4096, MEM_COMMIT, PAGE_READWRITE);
+				mem_ptr = VirtualAlloc(
+					NULL, 
+					4096,
+					MEM_COMMIT, //передача физической памяти
+					PAGE_READWRITE 
+				);
 				break;
 			}
 			case 2: {
 				cout << "Enter address:";
 				cin >> address;
-				mem_ptr = VirtualAlloc(address, 4096, MEM_COMMIT, PAGE_READWRITE);
+				mem_ptr = VirtualAlloc(
+					address, 
+					4096,
+					MEM_COMMIT, //передача физической памяти
+					PAGE_READWRITE
+				);
 				break;
 			}
 			default:
@@ -137,34 +161,18 @@ int main() {
 			break;
 		}
 		case 6: {
-			VOID* mem_for_write = NULL;
-			cout << "Enter memory address: ";
-			cin >> mem_for_write;
-			string value_to_write;
-			cout << "Enter text: ";
-			cin >> value_to_write;
-			HWND window = FindWindowA(0, "C:\\User\\book\\source\\repos\\lab2reader\\x64\\Release\\lab2os.exe");
-			if (window == 0) {
-				cout << "Window not found!" << endl;
-			}
-			else {
-				DWORD process_id;
-				GetWindowThreadProcessId(window, &process_id);
-				HANDLE process = OpenProcess(PROCESS_ALL_ACCESS, false, process_id);
-				if (!process) {
-					cout << "Process could not be open" << endl;
-				}
-				else {
-					int mem_write_status = WriteProcessMemory(process, (LPVOID)mem_for_write, &value_to_write, (DWORD)sizeof(value_to_write), NULL);
-					if (mem_write_status > 0) {
-						cout << "Succsess";
-					}
-					else {
-						cout << "Error";
-					}
-				}
-				CloseHandle(process);
-			}
+			cout << "Enter address: ";
+			void* mem_for_write;
+			cin >> hex >> mem_for_write;
+			cin >> dec;
+			cin.ignore(32767, '\n');
+			cout << "Enter data: ";
+			string data_to_write;
+			char str[256];
+			cin.getline(str, 256);
+			for (int i = 0; i < 256; i++)
+				reinterpret_cast<char*>(mem_for_write)[i] = str[i];
+			cout << "Data insert successfully" << endl;
 			system("pause");
 			break;
 		}
@@ -228,11 +236,15 @@ int main() {
 		}
 		case 8: {
 			if (VirtualFree(mem_ptr, 0, MEM_RELEASE)) cout << "Memory freed" << endl;
-			else cout << "Failed!";
+			else cout << "Failed!" << endl;;
 			system("pause");
 			break;
 		}
+		case 9:
+			break;
 		default:
+			cout << "";
+			system("pause");
 			break;
 		}
 	} while (menu_item != 9);
