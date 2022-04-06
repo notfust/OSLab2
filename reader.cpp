@@ -10,28 +10,6 @@ int main() {
 	string name, mapName;
 	HANDLE fileMap = NULL, file = NULL;
 	void* mapView = NULL;
-	{
-		file = CreateFile(
-			"reader.txt",
-			GENERIC_WRITE | GENERIC_READ,
-			NULL,
-			nullptr,
-			OPEN_ALWAYS,
-			NULL,
-			nullptr
-		);
-		if (file == INVALID_HANDLE_VALUE)
-			cout << "Error " << GetLastError() << endl;
-		fileMap = CreateFileMappingA(
-			file,
-			nullptr,
-			PAGE_READWRITE,
-			0,
-			1,
-			"Map"
-		);
-		if (!fileMap) cout << "Error " << GetLastError() << endl;
-	}
 	do {
 		{
 			system("cls");
@@ -48,9 +26,9 @@ int main() {
 		{
 		case 1: {
 			fileMap = OpenFileMapping(
-				FILE_MAP_ALL_ACCESS, 
-				true, 
-				"Map"
+				FILE_MAP_ALL_ACCESS, //режим доступа
+				true, //флаг наследования
+				"Map" //имя
 				/*NULL*/
 			);
 			if (!fileMap) cout << "Error " << GetLastError() << endl;
@@ -60,9 +38,11 @@ int main() {
 		}
 		case 2: {
 			mapView = MapViewOfFile(
-				fileMap,
-				FILE_MAP_ALL_ACCESS,
-				0, 0, 0
+				fileMap, //дескр. объекта проецируемый файл
+				FILE_MAP_ALL_ACCESS, //режим доступа
+				0, //старшее слово DWORD смещения
+				0, //младшее слово DWORD смещения
+				0 //кол-во байт отображения (отобразить целиком)
 			);
 			if (mapView == INVALID_HANDLE_VALUE) {
 				std::cout << "Error " << GetLastError() << endl;
