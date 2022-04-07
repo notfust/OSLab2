@@ -53,7 +53,7 @@ int main() {
 		}
 		case 3: {
 			string data(reinterpret_cast<char*>(mapView));
-			cout << "Read data: " << data << endl;;
+			cout << "Read data: " << data << endl;
 			cout << "Press enter...";
 			cin.get();
 			break;
